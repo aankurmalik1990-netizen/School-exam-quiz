@@ -1,0 +1,9 @@
+{
+  "buildCommand": "cd frontend && yarn install && npx expo export --platform web --output-dir dist",
+  "outputDirectory": "frontend/dist",
+  "framework": null,
+  "installCommand": "echo 'skip - handled in buildCommand'",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

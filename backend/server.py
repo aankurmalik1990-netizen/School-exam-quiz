@@ -144,7 +144,7 @@ async def generate_questions_llm(lesson_text: Optional[str], image_b64: Optional
         api_key=EMERGENT_LLM_KEY,
         session_id=f"gen-{uuid.uuid4()}",
         system_message=system_msg,
-    ).with_model("gemini", "gemini-2.5-pro").with_params(max_tokens=4000)
+    ).with_model("gemini", "gemini-2.5-flash").with_params(max_tokens=4000)
 
     if image_b64:
         # Strip "data:image/...;base64," prefix if present

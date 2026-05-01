@@ -1,0 +1,147 @@
+{
+  "project_context": {
+    "name": "Govt School Exam Platform",
+    "domain": "Education / Government School Platform",
+    "theme": "LIGHT",
+    "archetype": "Archetype 1 (Organic & Earthy)",
+    "primary_audience": [
+      "Indian government school teachers",
+      "Students",
+      "Administrators"
+    ],
+    "platform": "Hybrid Fullstack (Web PWA + Mobile-first), FastAPI + MongoDB"
+  },
+  "design_system": {
+    "colors": {
+      "brand_archetype_rationale": "Trust, calm, and focus are essential for an educational testing platform. Earthy tones avoid the coldness of corporate blue and the anxiety of harsh reds. Deep forest green instills trust and growth, while warm terracotta provides a human, approachable accent for young students.",
+      "palette": {
+        "background": {
+          "default": "#FDFCF8",
+          "paper": "#FFFFFF",
+          "muted": "#F3F2EE"
+        },
+        "primary": {
+          "DEFAULT": "#1B4332",
+          "hover": "#2D6A4F",
+          "foreground": "#FFFFFF"
+        },
+        "accent": {
+          "DEFAULT": "#D97757",
+          "hover": "#E28F75",
+          "foreground": "#FFFFFF"
+        },
+        "neutral": {
+          "50": "#F8F9FA",
+          "100": "#F1F3F5",
+          "200": "#E9ECEF",
+          "300": "#DEE2E6",
+          "400": "#CED4DA",
+          "500": "#ADB5BD",
+          "600": "#868E96",
+          "700": "#495057",
+          "800": "#343A40",
+          "900": "#212529"
+        },
+        "states": {
+          "success": "#2B8A3E",
+          "warning": "#E67700",
+          "error": "#C92A2A"
+        }
+      }
+    },
+    "typography": {
+      "rules": "Never use Inter for headings. Use Outfit for approachable, modern structural headers. Work Sans for highly legible, accessible body text suited for education. Maintain a strict size hierarchy.",
+      "fonts": {
+        "headings": "Outfit, sans-serif",
+        "body": "Work Sans, sans-serif"
+      },
+      "hierarchy": {
+        "h1": "text-4xl sm:text-5xl tracking-tight font-bold",
+        "h2": "text-2xl sm:text-3xl tracking-tight font-semibold",
+        "h3": "text-xl sm:text-2xl font-semibold",
+        "h4": "text-lg sm:text-xl font-medium",
+        "body": "text-base leading-relaxed",
+        "small": "text-sm text-neutral-600",
+        "overline": "text-xs tracking-[0.2em] uppercase font-semibold text-neutral-500"
+      }
+    },
+    "spacing_and_layout": {
+      "philosophy": "Mobile-first, generous spacing to reduce cognitive load. The 'Control Room' grid (Mode B) for Admin/Teacher dashboards, and simplified card stacks for the student view.",
+      "mobile_first_rules": [
+        "Primary CTAs must be thumb-friendly (min 44px height, Tailwind h-11/12).",
+        "Avoid deep nesting. Use bottom tabs or accessible bottom sheets for core navigation on mobile.",
+        "Student test interface must have clear, distinct radio cards (not tiny dots)."
+      ],
+      "grid_patterns": {
+        "dashboards": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
+        "test_interface": "max-w-2xl mx-auto flex flex-col gap-6"
+      }
+    },
+    "surfaces": {
+      "cards": "bg-white rounded-xl md:rounded-2xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow",
+      "headers": "bg-white/80 backdrop-blur-xl border-b border-neutral-200 sticky top-0 z-50",
+      "modals": "bg-white rounded-2xl shadow-xl",
+      "student_quiz_card": "bg-white border-2 border-neutral-100 rounded-2xl p-6 transition-all data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+    },
+    "interactions_and_motion": {
+      "hover_states": "Subtle lifts (-translate-y-0.5) and shadow increases for teacher/admin cards. Clear color shifts for student options.",
+      "focus_states": "focus:ring-2 focus:ring-accent focus:outline-none",
+      "transitions": "transition-all duration-200 ease-in-out"
+    }
+  },
+  "component_guidelines": {
+    "role_selector": "Large, tactile cards for Teacher, Student, Admin. Use icons (lucide-react). Student card should be most prominent.",
+    "timer_pill": "Sticky top-right on test screen. Soft red warning state when < 1 minute remaining (bg-error/10 text-error animate-pulse).",
+    "mcq_options": "Do not use standard radio buttons. Use full-width clickable cards for options to ensure large touch targets for students.",
+    "shadcn_overrides": [
+      "Card: increase default padding (p-6).",
+      "Button: ensure h-11 or h-12 for standard buttons (thumb-friendly).",
+      "Input: h-12, rounded-xl, soft borders."
+    ]
+  },
+  "screen_blueprints": {
+    "landing_role_selection": {
+      "layout": "Hero image overlay + 3 large role cards.",
+      "features": "Clear 'Select your role' heading. Bilingual toggle top right."
+    },
+    "teacher_dashboard": {
+      "layout": "Side navigation (desktop) / Bottom tabs (mobile). Top stats row (Total tests, Active students). Main area: 'Create Test' Wizard.",
+      "features": "Form to input class, subject, paste text / upload image. Generate MCQ button (Accent color)."
+    },
+    "student_exam_flow": {
+      "layout": "Join screen -> Code input (large, spaced digits) -> Code validation -> Test Interface.",
+      "features": "Test Interface: Progress bar top, Timer pill, Single question view, 'Next' button, Auto-submit on tab-switch (Anti-cheat modal)."
+    },
+    "admin_panel": {
+      "layout": "Data-heavy Mode B Grid. Tabs: Teachers, Students, Data.",
+      "features": "Data tables (Shadcn Table) with bulk actions. 'Danger Zone' clear DB button with double-confirmation."
+    }
+  },
+  "accessibility_and_testing": {
+    "data_testid_rules": "All interactive elements MUST include data-testid (e.g., 'login-teacher-button', 'exam-option-a', 'submit-test-button').",
+    "contrast": "Ensure min 4.5:1 ratio for text. The primary green (#1B4332) on white provides excellent contrast.",
+    "warnings": "Student auto-submit warning must be visually distinct (using state.error colors)."
+  },
+  "media_and_assets": {
+    "icons_library": "lucide-react",
+    "images": [
+      {
+        "category": "student_login_hero",
+        "url": "https://images.unsplash.com/photo-1709802247879-3d4241a05dc4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjBzY2hvb2wlMjBzdHVkZW50cyUyMHN0dWR5aW5nfGVufDB8fHx8MTc3NzY2MDk5MXww&ixlib=rb-4.1.0&q=85",
+        "description": "Group of Indian children reading on a bench. Use with black/30 overlay or as a split-screen visual for the student login portal."
+      },
+      {
+        "category": "teacher_login_hero",
+        "url": "https://images.unsplash.com/photo-1758270704925-fa59d93119c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwyfHx0ZWFjaGVyJTIwY2xhc3Nyb29tJTIwZWR1Y2F0aW9ufGVufDB8fHx8MTc3NzY2MDk5MXww&ixlib=rb-4.1.0&q=85",
+        "description": "Teacher in a classroom setting. Good for the teacher onboarding/login background."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Prioritize mobile-first layouts using Tailwind. The primary target device is mobile/tablet for students and teachers.",
+    "Use standard React / Tailwind with Shadcn UI components. Ensure cross-platform PWA compatibility.",
+    "Ensure the MCQ options are large, tap-friendly cards, not native small radio buttons.",
+    "Implement the 'anti-cheat' auto-submit on blur/tab-switch for the student exam interface.",
+    "Use data-testid on every interactive element."
+  ]
+}

@@ -20,7 +20,7 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+EMERGENT_LLM_KEY = os.environ.get('GEMINI_API_KEY', '')
 
 app = FastAPI(title="Govt School Exam Platform API")
 api_router = APIRouter(prefix="/api")
@@ -119,8 +119,9 @@ async def upsert_active_test(tid: str, data: dict):
 
 # ────────────────────────── LLM ──────────────────────────
 async def generate_questions_llm(lesson_text: Optional[str], image_b64: Optional[str], count: int) -> List[dict]:
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(500, "LLM key not configured")
+    api_key = os.environ.get('GEMINI_API_KEY', '')
+    if not api_key:
+        raise HTTPException(500, "GEMINI_API_KEY not configured")
 
     system_msg = (
         "You are an expert Indian school teacher who creates clear, fair multiple-choice "
@@ -141,7 +142,7 @@ async def generate_questions_llm(lesson_text: Optional[str], image_b64: Optional
         prompt += "\n\nThe lesson is in the attached image. Read it carefully (including any printed text in English/Hindi) and base your questions on its content."
 
     chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
+        api_key=api_key,
         session_id=f"gen-{uuid.uuid4()}",
         system_message=system_msg,
     ).with_model("gemini", "gemini-2.5-flash").with_params(max_tokens=4000)

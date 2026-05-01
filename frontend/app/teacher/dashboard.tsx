@@ -23,6 +23,8 @@ export default function TeacherDashboard() {
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [count, setCount] = useState("10");
+  const [language, setLanguage] = useState<"English" | "Hindi">("English");
+  const [difficulty, setDifficulty] = useState<1 | 2 | 3>(2);
   const [generating, setGenerating] = useState(false);
   const [activating, setActivating] = useState(false);
   const [revealing, setRevealing] = useState(false);
@@ -87,6 +89,7 @@ export default function TeacherDashboard() {
         image_base64: mode === "image" ? imageBase64! : undefined,
         count: Math.max(3, Math.min(20, parseInt(count) || 10)),
         test_class: testClass, subject,
+        language, difficulty,
       });
       flash("✅ Questions generated"); refresh();
     } catch (e: any) { setErr(`Failed: ${e.message}`); }
@@ -139,10 +142,50 @@ export default function TeacherDashboard() {
             <SectionTitle>1️⃣ Class & Subject</SectionTitle>
             <Picker label="Class" value={testClass} onChange={setTestClass} options={CLASSES} testID="teacher-class-picker" />
             <Picker label="Subject" value={subject} onChange={setSubject} options={SUBJECTS} testID="teacher-subject-picker" />
+
+            <Text style={[s.fieldLabel]}>Language</Text>
+            <View style={s.segmented}>
+              {(["English", "Hindi"] as const).map((l) => (
+                <TouchableOpacity
+                  key={l}
+                  testID={`lang-${l.toLowerCase()}-btn`}
+                  onPress={() => setLanguage(l)}
+                  style={[s.segBtn, language === l && s.segActive]}
+                >
+                  <Text style={[s.segTxt, language === l && s.segTxtActive]}>
+                    {l === "Hindi" ? "🇮🇳 हिंदी" : "🇬🇧 English"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[s.fieldLabel, { marginTop: SPACING.md }]}>Difficulty</Text>
+            <View style={s.segmented}>
+              {([1, 2, 3] as const).map((d) => {
+                const meta = { 1: { label: "Easy", emoji: "🟢" }, 2: { label: "Medium", emoji: "🟡" }, 3: { label: "Hard", emoji: "🔴" } }[d];
+                return (
+                  <TouchableOpacity
+                    key={d}
+                    testID={`diff-${d}-btn`}
+                    onPress={() => setDifficulty(d)}
+                    style={[s.segBtn, difficulty === d && s.segActive]}
+                  >
+                    <Text style={[s.segTxt, difficulty === d && s.segTxtActive]}>
+                      {meta.emoji} L{d} · {meta.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
             {testClass && subject && (
-              <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
+              <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap", marginTop: SPACING.md }}>
                 <Pill>{testClass}</Pill>
                 <Pill color={COLORS.accent}>{subject}</Pill>
+                <Pill color={COLORS.n700}>{language === "Hindi" ? "हिंदी" : "English"}</Pill>
+                <Pill color={difficulty === 1 ? COLORS.success : difficulty === 3 ? COLORS.error : COLORS.warning}>
+                  L{difficulty}
+                </Pill>
               </View>
             )}
           </Card>

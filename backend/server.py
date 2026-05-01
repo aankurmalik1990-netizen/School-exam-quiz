@@ -65,6 +65,8 @@ class GenerateIn(BaseModel):
     count: int = 10
     test_class: str
     subject: str
+    language: str = "English"  # English | Hindi
+    difficulty: int = 2  # 1=Easy, 2=Medium, 3=Hard
 
 class ActivateIn(BaseModel):
     teacher_id: str
@@ -118,10 +120,29 @@ async def upsert_active_test(tid: str, data: dict):
 
 
 # ────────────────────────── LLM ──────────────────────────
-async def generate_questions_llm(lesson_text: Optional[str], image_b64: Optional[str], count: int) -> List[dict]:
+async def generate_questions_llm(
+    lesson_text: Optional[str], image_b64: Optional[str], count: int,
+    language: str = "English", difficulty: int = 2,
+) -> List[dict]:
     api_key = os.environ.get('GEMINI_API_KEY', '')
     if not api_key:
         raise HTTPException(500, "GEMINI_API_KEY not configured")
+
+    diff_map = {
+        1: "EASY (basic recall, definitions, simple facts directly from the lesson)",
+        2: "MEDIUM (understanding and explanation, requires comprehension of concepts)",
+        3: "HARD (application and analysis, requires reasoning, comparisons, or inference)",
+    }
+    diff_desc = diff_map.get(int(difficulty), diff_map[2])
+
+    if str(language).lower() == "hindi":
+        lang_instruction = (
+            "Write the question text and ALL four options entirely in HINDI (Devanagari script). "
+            "Use clear, school-textbook-style Hindi suitable for Indian government school students. "
+            "Do NOT mix English. Proper nouns may stay in English in parentheses if needed."
+        )
+    else:
+        lang_instruction = "Write the question text and all four options in clear, simple ENGLISH suitable for Indian school students."
 
     system_msg = (
         "You are an expert Indian school teacher who creates clear, fair multiple-choice "
@@ -130,11 +151,13 @@ async def generate_questions_llm(lesson_text: Optional[str], image_b64: Optional
     )
 
     prompt = (
-        f"Generate exactly {count} multiple choice questions based on the lesson content. "
+        f"Generate exactly {count} multiple choice questions based on the lesson content.\n"
+        f"Difficulty level: {diff_desc}.\n"
+        f"Language: {lang_instruction}\n"
         f"Each question MUST have exactly 4 options. Return ONLY a JSON object in this exact format, no other text:\n"
         f'{{"questions":[{{"q":"question text","options":["option A","option B","option C","option D"],"answer":0}}]}}\n'
         f'The "answer" field MUST be an integer 0, 1, 2, or 3 indicating the index of the correct option. '
-        f"Make sure questions cover key concepts and vary in difficulty."
+        f"Make sure questions cover key concepts from the lesson."
     )
     if lesson_text:
         prompt += f"\n\nLesson Text:\n{lesson_text}"
@@ -363,7 +386,10 @@ async def teacher_generate(body: GenerateIn):
         raise HTTPException(400, "Subject is required")
     count = max(3, min(20, int(body.count or 10)))
 
-    questions = await generate_questions_llm(body.lesson_text, body.image_base64, count)
+    questions = await generate_questions_llm(
+        body.lesson_text, body.image_base64, count,
+        language=body.language, difficulty=body.difficulty,
+    )
 
     await upsert_active_test(body.teacher_id, {
         "questions": questions,
@@ -372,6 +398,8 @@ async def teacher_generate(body: GenerateIn):
         "results": {},
         "test_class": body.test_class,
         "subject": body.subject,
+        "language": body.language,
+        "difficulty": body.difficulty,
     })
     at = await get_active_test(body.teacher_id)
     return at

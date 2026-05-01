@@ -47,6 +47,7 @@ export const Api = {
   teacherGenerate: (b: {
     teacher_id: string; lesson_text?: string; image_base64?: string;
     count: number; test_class: string; subject: string;
+    language?: string; difficulty?: number;
   }) => api.post("/teacher/generate", b),
   teacherActivate: (teacher_id: string, join_code: string) =>
     api.post("/teacher/activate", { teacher_id, join_code }),

@@ -1,0 +1,51 @@
+{
+  "summary": "First end-to-end test pass. Backend: 21/21 pytest tests PASS after fixing one bug in server.py (LlmChat.with_max_tokens → with_params(max_tokens=...)). Frontend: landing, admin login, admin dashboard (Teachers tab + Test Teacher row), teacher login picker, teacher dashboard, full student flow (join → answer 3 MCQ → submit → 100% score circle on /student/done with question review) all working. PWA manifest is NOT served (/manifest.json returns 404). EMERGENT_LLM_KEY budget appears to have been exhausted during testing — subsequent /api/teacher/generate calls fail with 'Budget has been exceeded'. UI flow had to be tested by directly seeding an active test in MongoDB after the budget ran out.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/teacher/generate", "issue": "EMERGENT_LLM_KEY budget exceeded after a few generation calls — main agent should request a key with higher quota or budget reset; otherwise generation flow is blocked in subsequent runs."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "PWA manifest", "issue": "/manifest.json returns 404. Expo web with output=static does not auto-emit manifest.json — must be added to app.json (web.manifest) or placed in public/ folder. PWA installability + theme color requirement is unmet.", "testID": "n/a", "priority": "MEDIUM"},
+      {"component": "TeacherDashboard", "issue": "Console error on load: 'Unexpected text node: . A text node cannot be a child of a <View>.' (logged twice). Indicates a stray whitespace/text outside <Text> in teacher/dashboard.tsx.", "testID": "n/a", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global", "issues": [
+        "Multiple deprecation warnings: 'shadow*' style props deprecated (use boxShadow); props.pointerEvents deprecated (use style.pointerEvents). Non-blocking but should be migrated.",
+        "Expo doctor warnings: @react-native-async-storage/async-storage@3.0.2 (expected 2.2.0) and expo-image-picker@55.0.19 (expected ~17.0.11) version mismatches — may cause native runtime issues on device builds."
+      ]}
+    ],
+    "react_native_issues": [
+      {"component": "teacher/dashboard.tsx", "issue": "Bare text node rendered directly inside a <View> — produces 'Unexpected text node' web error. Likely a `{condition && \" \"}` or trailing space in JSX. Needs to be wrapped in <Text> or removed."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_full_flow.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Replenish/replace EMERGENT_LLM_KEY — budget exhausted ('Max budget: 0.001'). Without a fresh key the real Claude Sonnet 4.5 generation flow cannot be re-tested by user or testing agent.",
+    "Add PWA manifest: extend app.json `web` block with `manifest` config or place /public/manifest.json so /manifest.json is served with theme color = forest green (#1B4332).",
+    "Find and fix the stray text node in /app/frontend/app/teacher/dashboard.tsx producing 'Unexpected text node' console errors.",
+    "Optional: align async-storage and expo-image-picker versions with Expo SDK expectations (`npx expo install --check`)."
+  ],
+  "critical_code_review_comments": [
+    "server.py used non-existent LlmChat.with_max_tokens() — fixed to .with_params(max_tokens=4000). emergentintegrations exposes only with_model / with_params / send_message.",
+    "server.py is 569 lines — close to the 700-line guideline ceiling; future growth should be split into modules (admin_routes, teacher_routes, student_routes, llm_service).",
+    "Several DELETE/PUT endpoints return only {ok: True} — fine, but consider returning the updated/deleted entity for nicer client UX.",
+    "/api/student/find-test exposes `previous_attempt.answers` only (no question texts) — good. After reveal the full answers are returned, which is intended per spec."
+  ],
+  "updated_files": [
+    "/app/backend/server.py (fixed LlmChat.with_max_tokens → with_params(max_tokens=4000) at line 147)",
+    "/app/backend/tests/test_full_flow.py (created — 21 pytest tests covering full backend flow incl. health, admin auth, teacher CRUD, login auth, real LLM generation, activate, student find/submit/double-submit/already-attempted, history, reveal, clear-all)"
+  ],
+  "success_rate": {"backend": "100% (21/21)", "frontend": "~90% (manifest missing + minor console error)"},
+  "seed_data_creation": "During UI flow testing, after admin/clear-all wiped DB, I re-created admin/admin123 (auto-seeded), one teacher (Test Teacher / Science / teacher123, id auto-generated like T802037). When LLM budget got exhausted, I directly seeded an active_tests document via Mongo (3 photosynthesis MCQs, join_code=UITEST, test_class='Class 5', subject='Science') so student UI flow could be exercised end-to-end. Two attempts created: UITEST_Alice (incomplete) and UITEST_Bob (3/3 = 100%).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend bug already fixed. Re-run /app/backend/tests/test_full_flow.py with EXPO_PUBLIC_BACKEND_URL env var. The test_10_teacher_generate_questions test will FAIL again unless EMERGENT_LLM_KEY has fresh budget. To test student UI without LLM, seed active_tests directly via Mongo (script in seed_data_creation). Frontend testIDs are reliable: role-{teacher|student|admin}-btn, admin-password-input, admin-login-btn, teacher-option-{id}, teacher-password-input, teacher-login-btn, student-name-input, student-class-picker, student-subject-picker, student-code-input, student-join-btn, opt-{q}-{i}, next-btn, prev-btn, submit-btn, timer-pill. Picker option text duplicates the selected-value text once chosen — use get_by_test_id('...-picker-option-...') instead of get_by_text after first selection.",
+  "rca_of_issue": "ROOT CAUSE 1 (FIXED): /api/teacher/generate returned 500 because server.py called LlmChat(...).with_max_tokens(4000), but the emergentintegrations library only exposes with_model/with_params/send_message. Reproduction: POST /api/teacher/generate → 500 with backend log `AttributeError: 'LlmChat' object has no attribute 'with_max_tokens'`. Mitigation: replaced with .with_params(max_tokens=4000). After backend restart, generation works (verified via pytest test_10 which produced ≥3 valid MCQs). ROOT CAUSE 2 (NOT FIXED): /manifest.json 404 because Expo Router static export doesn't auto-create a PWA manifest; needs to be added explicitly. ROOT CAUSE 3 (BLOCKER for retest): EMERGENT_LLM_KEY in /app/backend/.env hit its $0.001 budget cap (already at $0.005682 cost) — every subsequent generation request returns 502 'LLM error: Budget has been exceeded'. Main agent must rotate or top-up the key."
+}

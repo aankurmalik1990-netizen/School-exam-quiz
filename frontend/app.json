@@ -1,27 +1,37 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Govt School Exam",
+    "slug": "govt-school-exam",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
-    "userInterfaceStyle": "automatic",
+    "scheme": "gsep",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Upload lesson images to generate questions"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000"
+        "backgroundColor": "#1B4332"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": ["READ_EXTERNAL_STORAGE", "READ_MEDIA_IMAGES"]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Govt School Exam Platform",
+      "shortName": "Exam Platform",
+      "themeColor": "#1B4332",
+      "backgroundColor": "#FDFCF8",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
       "expo-router",
@@ -31,10 +41,16 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#1B4332"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Upload lesson images to generate quiz questions."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

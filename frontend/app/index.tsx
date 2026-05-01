@@ -90,7 +90,7 @@ export default function Index() {
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             🟢 {activeCount === null ? "…" : activeCount} active teacher{activeCount === 1 ? "" : "s"} ·
-            Powered by Claude Sonnet 4.5
+            Powered by Gemini 2.5 Pro
           </Text>
         </View>
       </ScrollView>

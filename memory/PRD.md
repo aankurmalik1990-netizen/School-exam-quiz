@@ -7,7 +7,7 @@ A mobile-first PWA / Expo (iOS + Android + Web) application that allows Indian g
 - **Frontend**: Expo Router (React Native + react-native-web for PWA) – Expo SDK 54
 - **Backend**: FastAPI + Motor (MongoDB async)
 - **Database**: MongoDB
-- **AI**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) via `emergentintegrations` + Universal Emergent LLM key
+- **AI**: Gemini 2.5 Pro (`gemini-2.5-pro`) via `emergentintegrations` + Universal Emergent LLM key
 - **Storage**: AsyncStorage (session), MongoDB (persistence)
 
 ## Roles
@@ -16,7 +16,7 @@ A mobile-first PWA / Expo (iOS + Android + Web) application that allows Indian g
 3. **Student** (no account) – enter name + class + subject + join code → take timed test (30s/Q, auto-submit on tab-switch / time-up) → see score and per-question review → access own history.
 
 ## Key Features
-- **AI question generation** via Claude Sonnet 4.5 with vision support (OCR Hindi/English textbook images).
+- **AI question generation** via Gemini 2.5 Pro with vision support (OCR Hindi/English textbook images).
 - **One-attempt-per-test** enforced server-side (unique by name + class + joinCode).
 - **Class-match validation** – Class 5 test rejects Class 6 student.
 - **Anti-cheat auto-submit** – on `AppState` change, browser tab visibility change, or timer expiry.

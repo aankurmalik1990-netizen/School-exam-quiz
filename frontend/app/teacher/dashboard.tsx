@@ -188,7 +188,7 @@ export default function TeacherDashboard() {
               />
             </View>
             <Button
-              title={generating ? "🤖 Generating with Claude…" : "🤖 Generate Questions"}
+              title={generating ? "🤖 Generating with Gemini…" : "🤖 Generate Questions"}
               onPress={onGenerate}
               loading={generating}
               variant="accent"
